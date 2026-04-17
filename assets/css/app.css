@@ -110,6 +110,28 @@ code {
   width: min(680px, 100%);
   padding: 24px;
 }
+.landing-layout {
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  overflow: hidden;
+}
+
+.landing-logo-panel {
+  border-left: 1px solid #2d3f70;
+  background: linear-gradient(155deg, #0f1b3f, #0b1532);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.landing-logo {
+  width: min(240px, 100%);
+  max-height: 340px;
+  object-fit: contain;
+  border-radius: 12px;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.35));
+}
 
 .landing-card h1 {
   margin: 0;
@@ -136,6 +158,35 @@ code {
 
 .login-card h1 {
   margin: 0 0 8px;
+}
+
+.login-split {
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  overflow: hidden;
+}
+
+.login-card-split {
+  width: 100%;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.login-logo-panel {
+  border-left: 1px solid #2d3f70;
+  background: linear-gradient(155deg, #0f1b3f, #0b1532);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.login-company-logo {
+  width: min(230px, 100%);
+  max-height: 300px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.35));
 }
 
 .message {
@@ -456,5 +507,21 @@ th {
   }
   .two-col {
     grid-template-columns: 1fr;
+  }
+  .login-split {
+    grid-template-columns: 1fr;
+  }
+  .landing-layout {
+    grid-template-columns: 1fr;
+  }
+  .landing-logo-panel {
+    border-left: 0;
+    border-top: 1px solid #2d3f70;
+    min-height: 180px;
+  }
+  .login-logo-panel {
+    border-left: 0;
+    border-top: 1px solid #2d3f70;
+    min-height: 180px;
   }
 }

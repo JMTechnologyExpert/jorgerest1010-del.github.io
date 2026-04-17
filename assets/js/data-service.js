@@ -4,6 +4,7 @@ window.JMDataService = (() => {
 
   const LOCAL_DB_KEY = "jmtech_web_db_v1";
   const SESSION_KEY = "jmtech_web_session_v1";
+  const SUPABASE_SETTINGS_FALLBACK_KEY = "jmtech_supabase_settings_fallback_v1";
 
   const DEFAULT_SETTINGS = {
     community_name: cfg.defaultCommunityName || "JM Technology Expert - Sistema de Alícuotas",
@@ -18,6 +19,7 @@ window.JMDataService = (() => {
   let warning = "";
   let supabase = null;
   let localDb = null;
+  let settingsTableAvailable = true;
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
@@ -58,6 +60,30 @@ window.JMDataService = (() => {
     localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(localDb));
   }
 
+  function loadSupabaseSettingsFallback() {
+    try {
+      const raw = localStorage.getItem(SUPABASE_SETTINGS_FALLBACK_KEY);
+      if (!raw) {
+        return {};
+      }
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return {};
+      }
+      return parsed;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveSupabaseSettingsFallback(value) {
+    try {
+      localStorage.setItem(SUPABASE_SETTINGS_FALLBACK_KEY, JSON.stringify(value || {}));
+    } catch (_) {
+      // no-op
+    }
+  }
+
   function isSupabaseConfigured() {
     return Boolean(
       cfg.supabaseUrl &&
@@ -68,7 +94,7 @@ window.JMDataService = (() => {
   }
 
   function modeLabel() {
-    return "Supabase nube";
+    return mode === "supabase" ? "Supabase nube" : "Modo local (respaldo)";
   }
 
   function getStatus() {
@@ -79,13 +105,27 @@ window.JMDataService = (() => {
     };
   }
 
+  async function activateLocalMode(message) {
+    mode = "local";
+    warning = String(message || "");
+    supabase = null;
+    localDb = loadLocalDB();
+    await ensureLocalSeedData();
+  }
+
+  function isMissingSupabaseTableError(message) {
+    const text = String(message || "").toLowerCase();
+    return text.includes("schema cache") || text.includes("tabla '") || text.includes("does not exist");
+  }
+
   async function init() {
     if (initialized) {
       return getStatus();
     }
     if (!isSupabaseConfigured()) {
-      throw new Error("Supabase no configurado: revisa URL y Anon Key en config.js.");
-      localDb = loadLocalDB();
+      await activateLocalMode("Supabase no configurado: revisa URL y Anon Key en config.js. Se activó modo local temporal.");
+      initialized = true;
+      return getStatus();
     }
 
     try {
@@ -94,25 +134,40 @@ window.JMDataService = (() => {
         auth: { persistSession: false }
       });
       mode = "supabase";
+      settingsTableAvailable = true;
       await validateSupabaseTables();
       await ensureSeedData();
       initialized = true;
       return getStatus();
     } catch (error) {
-      initialized = false;
-      supabase = null;
-      throw new Error(`No se pudo conectar con Supabase: ${error.message}`);
+      const detail = error && error.message ? error.message : "error desconocido";
+      const recoveryMessage = isMissingSupabaseTableError(detail)
+        ? `No se pudo conectar con Supabase: ${detail}. Se activó modo local temporal. Ejecuta supabase-schema.sql en tu proyecto de Supabase y recarga la página.`
+        : `No se pudo conectar con Supabase: ${detail}. Se activó modo local temporal.`;
+      await activateLocalMode(recoveryMessage);
+      initialized = true;
+      return getStatus();
     }
   }
 
   async function validateSupabaseTables() {
-    const checks = ["app_settings", "app_users", "clients", "payments", "expenses", "calendar_events"];
+    const checks = ["app_users", "clients", "payments", "expenses", "calendar_events"];
     for (const table of checks) {
       const { error } = await supabase.from(table).select("*").limit(1);
       if (error) {
         throw new Error(`tabla '${table}' no disponible (${error.message})`);
       }
     }
+    const { error: settingsError } = await supabase.from("app_settings").select("*").limit(1);
+    if (settingsError) {
+      if (isMissingSupabaseTableError(settingsError.message)) {
+        settingsTableAvailable = false;
+        warning = "Tabla opcional app_settings no disponible en Supabase. Se usarán ajustes locales de respaldo.";
+        return;
+      }
+      throw new Error(`tabla 'app_settings' no disponible (${settingsError.message})`);
+    }
+    settingsTableAvailable = true;
   }
 
   function sessionData() {
@@ -201,16 +256,21 @@ window.JMDataService = (() => {
   }
 
   async function ensureSupabaseSeedData() {
+    if (settingsTableAvailable) {
     const { data: settingsRow, error: settingsReadErr } = await supabase
       .from("app_settings")
       .select("key,value")
       .eq("key", "portal_settings")
       .maybeSingle();
     if (settingsReadErr) {
-      throw new Error(`No se pudo validar configuración inicial (${settingsReadErr.message})`);
+      if (isMissingSupabaseTableError(settingsReadErr.message)) {
+        settingsTableAvailable = false;
+      } else {
+        throw new Error(`No se pudo validar configuración inicial (${settingsReadErr.message})`);
+      }
     }
     const settingsValue = settingsRow && settingsRow.value ? settingsRow.value : null;
-    if (!settingsValue || !settingsValue.community_name) {
+    if (settingsTableAvailable && (!settingsValue || !settingsValue.community_name)) {
       const { error: settingsWriteErr } = await supabase.from("app_settings").upsert(
         {
           key: "portal_settings",
@@ -220,8 +280,13 @@ window.JMDataService = (() => {
         { onConflict: "key" }
       );
       if (settingsWriteErr) {
-        throw new Error(`No se pudo guardar configuración inicial (${settingsWriteErr.message})`);
+        if (isMissingSupabaseTableError(settingsWriteErr.message)) {
+          settingsTableAvailable = false;
+        } else {
+          throw new Error(`No se pudo guardar configuración inicial (${settingsWriteErr.message})`);
+        }
       }
+    }
     }
     const { data: adminRows, error: adminErr } = await supabase
       .from("app_users")
@@ -337,15 +402,22 @@ window.JMDataService = (() => {
     if (mode === "local") {
       return { ...clone(DEFAULT_SETTINGS), ...(localDb.settings || {}) };
     }
+    if (!settingsTableAvailable) {
+      return { ...clone(DEFAULT_SETTINGS), ...loadSupabaseSettingsFallback() };
+    }
     const { data, error } = await supabase
       .from("app_settings")
       .select("value")
       .eq("key", "portal_settings")
       .maybeSingle();
     if (error) {
+      if (isMissingSupabaseTableError(error.message)) {
+        settingsTableAvailable = false;
+        return { ...clone(DEFAULT_SETTINGS), ...loadSupabaseSettingsFallback() };
+      }
       throw new Error(`No se pudo leer configuración (${error.message})`);
     }
-    return { ...clone(DEFAULT_SETTINGS), ...((data && data.value) || {}) };
+    return { ...clone(DEFAULT_SETTINGS), ...loadSupabaseSettingsFallback(), ...((data && data.value) || {}) };
   }
 
   async function saveSettings(patch) {
@@ -357,6 +429,10 @@ window.JMDataService = (() => {
       saveLocalDB();
       return merged;
     }
+    if (!settingsTableAvailable) {
+      saveSupabaseSettingsFallback(merged);
+      return merged;
+    }
     const payload = {
       key: "portal_settings",
       value: merged,
@@ -364,6 +440,11 @@ window.JMDataService = (() => {
     };
     const { error } = await supabase.from("app_settings").upsert(payload, { onConflict: "key" });
     if (error) {
+      if (isMissingSupabaseTableError(error.message)) {
+        settingsTableAvailable = false;
+        saveSupabaseSettingsFallback(merged);
+        return merged;
+      }
       throw new Error(`No se pudo guardar configuración (${error.message})`);
     }
     return merged;

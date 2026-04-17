@@ -8,30 +8,31 @@
 </head>
 <body>
   <section id="adminLoginScreen" class="screen-center">
-    <article class="login-card card">
-      <p class="overline">JMTECHNOLOGYEXPERT</p>
-      <h1>Acceso al sistema</h1>
-      <p class="muted">Ingresa con tu usuario y contraseña. El sistema detecta automáticamente tu perfil y permisos.</p>
-      <form id="adminLoginForm">
-        <div class="form-grid single">
-          <label class="field">
-            <span>Usuario</span>
-            <input id="adminUser" autocomplete="username" required>
-          </label>
-          <label class="field">
-            <span>Contraseña</span>
-            <input id="adminPass" type="password" autocomplete="current-password" required>
-          </label>
-        </div>
-        <div class="form-actions">
-          <button class="button primary" type="submit">Iniciar sesión</button>
-        </div>
-      </form>
-      <div id="adminLoginMsg" class="message hidden"></div>
-      <div class="inline-note">
-        Acceso inicial:
-        <code>admin</code> / <code>Admin123!</code>
+    <article class="login-split card">
+      <div class="login-card login-card-split">
+        <p class="overline">JMTECHNOLOGYEXPERT</p>
+        <h1>Acceso al sistema</h1>
+        <p class="muted">Ingresa con tu usuario y contraseña. El sistema detecta automáticamente tu perfil y permisos.</p>
+        <form id="adminLoginForm">
+          <div class="form-grid single">
+            <label class="field">
+              <span>Usuario</span>
+              <input id="adminUser" autocomplete="username" required>
+            </label>
+            <label class="field">
+              <span>Contraseña</span>
+              <input id="adminPass" type="password" autocomplete="current-password" required>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="button primary" type="submit">Iniciar sesión</button>
+          </div>
+        </form>
+        <div id="adminLoginMsg" class="message hidden"></div>
       </div>
+      <aside class="login-logo-panel">
+        <img class="login-company-logo" src="assets/img/logo-empresa.jpeg" alt="Logo de la empresa">
+      </aside>
     </article>
   </section>
 
