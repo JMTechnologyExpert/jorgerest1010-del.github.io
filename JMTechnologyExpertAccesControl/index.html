@@ -3,11 +3,614 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Redirigiendo al portal de clientes...</title>
-  <script>
-    const target = `../cliente.html${window.location.search || ""}${window.location.hash || ""}`;
-    window.location.replace(target);
-  </script>
+  <title>SaaS Control de Alícuotas | Plataforma de Gestión y Accesos</title>
+  <meta name="description" content="Plataforma SaaS para administración de alícuotas y control de accesos peatonales/vehiculares con integración a Soyal y Tuya Smart.">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #141b33;
+      --card: #18213f;
+      --card-2: #1e2a52;
+      --text: #e7ecff;
+      --muted: #b7c2eb;
+      --primary: #5b8cff;
+      --secondary: #22d3ee;
+      --ok: #34d399;
+      --warn: #f59e0b;
+      --danger: #f87171;
+      --border: rgba(255, 255, 255, 0.12);
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(1200px 600px at 85% -20%, rgba(91, 140, 255, 0.25), transparent 60%),
+                  radial-gradient(1000px 500px at -10% 10%, rgba(34, 211, 238, 0.2), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Inter, Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1160px, 92%);
+      margin-inline: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      background: rgba(11, 16, 32, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: linear-gradient(130deg, var(--secondary), var(--primary));
+      box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.15);
+    }
+
+    .nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-label {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .nav-select {
+      min-width: 230px;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #0f1731;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    .nav-select:focus {
+      outline: 2px solid rgba(99, 102, 241, 0.45);
+      outline-offset: 1px;
+    }
+
+    .hero {
+      padding: 72px 0 50px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #cbf4ff;
+      background: rgba(34, 211, 238, 0.13);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      border-radius: 999px;
+      padding: 6px 12px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height: 1.18;
+      max-width: 14ch;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 68ch;
+      margin-top: 16px;
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(120deg, var(--primary), #6aa4ff);
+      box-shadow: 0 8px 20px rgba(91, 140, 255, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .btn-soft {
+      color: #dfe7ff;
+      border-color: var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .btn-soft:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .section {
+      padding: 18px 0 34px;
+    }
+
+    .card {
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.03), transparent 60%), var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.35rem;
+    }
+
+    h3 {
+      margin: 0 0 9px;
+      font-size: 1.02rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .step-list {
+      counter-reset: step;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .step-list li {
+      position: relative;
+      padding: 12px 12px 12px 52px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card-2);
+      color: var(--muted);
+    }
+
+    .step-list li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(120deg, var(--secondary), var(--primary));
+      color: #001124;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+      color: #d6defa;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .status-ok { border-color: rgba(52, 211, 153, 0.5); color: #ccffeb; background: rgba(52, 211, 153, 0.12); }
+    .status-warn { border-color: rgba(245, 158, 11, 0.5); color: #ffefcc; background: rgba(245, 158, 11, 0.12); }
+    .status-bad { border-color: rgba(248, 113, 113, 0.5); color: #ffd9d9; background: rgba(248, 113, 113, 0.12); }
+
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      padding: 24px 0 34px;
+      border-top: 1px solid var(--border);
+      color: #99a8da;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 780px) {
+      .topbar-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav {
+        width: 100%;
+      }
+
+      .nav-select {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
-<body></body>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#inicio">
+        <span class="dot"></span>
+        SaaS Control de Alícuotas
+      </a>
+      <nav class="nav" aria-label="Menú principal">
+        <label class="nav-label" for="menu-opciones">Opciones</label>
+        <select id="menu-opciones" class="nav-select">
+          <option value="">Selecciona una sección</option>
+          <option value="#descripcion">Descripción</option>
+          <option value="#arquitectura">Arquitectura</option>
+          <option value="#modulos">Módulos</option>
+          <option value="#usuarios">Usuarios</option>
+          <option value="#flujo">Flujo</option>
+          <option value="#bd">Base de datos</option>
+          <option value="#ui">Interfaz</option>
+          <option value="#logica">Lógica</option>
+          <option value="#integracion">Integración</option>
+          <option value="#tecnologias">Tecnologías</option>
+          <option value="#seguridad">Seguridad</option>
+          <option value="#futuro">Mejoras</option>
+        </select>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inicio" class="container">
+    <section class="hero">
+      <span class="badge">Plataforma SaaS multi-cliente para conjuntos habitacionales</span>
+      <h1>Control inteligente de pagos y accesos peatonales/vehiculares</h1>
+      <p>
+        Solución web profesional para fabricantes y administradores de conjuntos habitacionales:
+        gestión de alícuotas, copropietarios, arrendatarios, unidades habitacionales, reportes y
+        automatización del acceso según estado de pago. Integra conceptualmente con Soyal y Tuya Smart.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#modulos">Ver módulos del sistema</a>
+        <a class="btn btn-soft" href="#integracion">Revisar integración API</a>
+      </div>
+    </section>
+
+    <section id="descripcion" class="section">
+      <article class="card">
+        <h2>1. Descripción general del sistema</h2>
+        <p>
+          La plataforma opera como SaaS con aislamiento por cliente (tenant), permitiendo que el
+          fabricante administre múltiples conjuntos habitacionales desde un panel central. Cada cliente
+          dispone de su propio entorno para gestionar pagos de alícuotas y operaciones administrativas,
+          mientras que los copropietarios visualizan información de pagos, deudas y notificaciones.
+        </p>
+      </article>
+    </section>
+
+    <section id="arquitectura" class="section">
+      <article class="card">
+        <h2>2. Arquitectura del sistema</h2>
+        <div class="grid grid-3">
+          <div>
+            <h3>Frontend</h3>
+            <p>SPA web responsiva con paneles por rol, dashboard, reportes y centro de notificaciones.</p>
+          </div>
+          <div>
+            <h3>Backend API</h3>
+            <p>Servicios REST para autenticación, facturación, gestión de usuarios, reglas de acceso e integraciones externas.</p>
+          </div>
+          <div>
+            <h3>Base de datos</h3>
+            <p>Modelo relacional multi-tenant con separación lógica por cliente y auditoría de operaciones.</p>
+          </div>
+          <div>
+            <h3>Integraciones</h3>
+            <p>Conectores API para Soyal y Tuya Smart con cola de eventos, reintentos y trazabilidad.</p>
+          </div>
+          <div>
+            <h3>Motor de reglas</h3>
+            <p>Evalúa estado de cartera y aplica bloqueo/desbloqueo automático de accesos.</p>
+          </div>
+          <div>
+            <h3>Observabilidad</h3>
+            <p>Logs estructurados, métricas y alertas para uso del fabricante y soporte operativo.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="modulos" class="section">
+      <article class="card">
+        <h2>3. Módulos principales</h2>
+        <div class="grid grid-2">
+          <ul>
+            <li>Gestión de clientes SaaS (alta, activación, suspensión y licencias).</li>
+            <li>Usuarios y roles con permisos granulares.</li>
+            <li>Registro de copropietarios, arrendatarios y unidades habitacionales.</li>
+            <li>Facturación y control de pagos de alícuotas.</li>
+          </ul>
+          <ul>
+            <li>Reportes de pagos, mora y estado de cartera.</li>
+            <li>Notificaciones automatizadas (email, app, panel).</li>
+            <li>Integración con sistemas de control de acceso.</li>
+            <li>Motor de reglas para bloqueo/desbloqueo automático.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section id="usuarios" class="section">
+      <article class="card">
+        <h2>4. Tipos de usuarios</h2>
+        <div class="grid grid-3">
+          <div>
+            <h3>Fabricante (Super Admin)</h3>
+            <p>Crea cuentas de clientes, gestiona licencias, habilita/deshabilita acceso y monitorea la plataforma completa.</p>
+          </div>
+          <div>
+            <h3>Administrador del cliente</h3>
+            <p>Gestiona datos del conjunto: unidades, personas, pagos, reportes y políticas administrativas.</p>
+          </div>
+          <div>
+            <h3>Copropietario (solo visualización)</h3>
+            <p>Consulta pagos realizados, deudas pendientes, notificaciones e información administrativa sin permisos de edición.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="flujo" class="section">
+      <article class="card">
+        <h2>5. Flujo del sistema</h2>
+        <ol class="step-list">
+          <li>El fabricante registra un nuevo cliente y configura su tenant.</li>
+          <li>El administrador del cliente crea usuarios, unidades y vínculos con residentes.</li>
+          <li>Se generan alícuotas y se actualiza el estado de cuenta por unidad.</li>
+          <li>El motor de reglas evalúa mora y determina estado de acceso.</li>
+          <li>Se envía evento a Soyal/Tuya para bloquear o habilitar acceso.</li>
+          <li>Los copropietarios visualizan su estado financiero y notificaciones en tiempo real.</li>
+        </ol>
+      </article>
+    </section>
+
+    <section id="bd" class="section">
+      <article class="card">
+        <h2>6. Estructura de base de datos (conceptual)</h2>
+        <div class="grid grid-2">
+          <ul>
+            <li><strong>tenants</strong>: información del cliente SaaS.</li>
+            <li><strong>users</strong>: usuarios y credenciales.</li>
+            <li><strong>roles</strong>, <strong>permissions</strong>: control de acceso.</li>
+            <li><strong>units</strong>: viviendas/unidades habitacionales.</li>
+            <li><strong>residents</strong>: copropietarios/arrendatarios.</li>
+          </ul>
+          <ul>
+            <li><strong>fees</strong>: alícuotas y periodos.</li>
+            <li><strong>payments</strong>: pagos registrados y comprobantes.</li>
+            <li><strong>debts</strong>: saldos pendientes y mora.</li>
+            <li><strong>access_rules</strong>, <strong>access_events</strong>: decisiones y eventos de acceso.</li>
+            <li><strong>audit_logs</strong>, <strong>notifications</strong>: trazabilidad y comunicación.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section id="ui" class="section">
+      <article class="card">
+        <h2>7. Diseño de interfaz</h2>
+        <div class="grid grid-3">
+          <div>
+            <h3>Dashboard ejecutivo</h3>
+            <p>Indicadores de recaudación, mora, accesos bloqueados y alertas críticas.</p>
+          </div>
+          <div>
+            <h3>Gestión operativa</h3>
+            <p>Formularios claros para personas, unidades, pagos y configuraciones del conjunto.</p>
+          </div>
+          <div>
+            <h3>Vista copropietario</h3>
+            <p>Panel simple de lectura con estado de cuenta, historial y notificaciones.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="logica" class="section">
+      <article class="card">
+        <h2>8. Lógica de negocio para control de pagos y accesos</h2>
+        <div class="grid grid-3">
+          <div>
+            <h3>Regla de estado financiero</h3>
+            <p>Si existe deuda vencida > umbral configurado, se marca unidad en estado de mora.</p>
+          </div>
+          <div>
+            <h3>Acción de bloqueo</h3>
+            <p>Estado en mora genera evento de bloqueo de acceso peatonal y/o vehicular.</p>
+          </div>
+          <div>
+            <h3>Rehabilitación automática</h3>
+            <p>Al confirmar pago y conciliación, se emite evento de desbloqueo automáticamente.</p>
+          </div>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="pill status-ok">Pagos al día → Acceso activo</span>
+          <span class="pill status-warn">Saldo próximo a vencer → Notificación preventiva</span>
+          <span class="pill status-bad">Mora vencida → Bloqueo automático</span>
+        </div>
+      </article>
+    </section>
+
+    <section id="integracion" class="section">
+      <article class="card">
+        <h2>9. Integración conceptual con Soyal y Tuya Smart</h2>
+        <div class="grid grid-2">
+          <div>
+            <h3>Soyal</h3>
+            <ul>
+              <li>Mapeo de unidades/usuarios a identificadores del dispositivo.</li>
+              <li>Comandos de alta/baja de autorización y estado de acceso.</li>
+              <li>Reintentos automáticos y bitácora de resultados por evento.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Tuya Smart</h3>
+            <ul>
+              <li>Integración mediante API Cloud para dispositivos compatibles.</li>
+              <li>Sincronización de permisos y acciones remotas por regla de negocio.</li>
+              <li>Trazabilidad de cambios para auditoría y soporte.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="tecnologias" class="section">
+      <article class="card">
+        <h2>10. Tecnologías recomendadas</h2>
+        <div class="tech-stack">
+          <span class="pill">Frontend: React + TypeScript + Vite</span>
+          <span class="pill">UI: Tailwind CSS / Material UI</span>
+          <span class="pill">Backend: Node.js (NestJS) o .NET</span>
+          <span class="pill">DB: PostgreSQL</span>
+          <span class="pill">Cache/colas: Redis + RabbitMQ</span>
+          <span class="pill">Auth: JWT + Refresh Tokens</span>
+          <span class="pill">Infra: Docker + Kubernetes</span>
+          <span class="pill">CI/CD: GitHub Actions</span>
+          <span class="pill">Observabilidad: OpenTelemetry + Grafana</span>
+        </div>
+      </article>
+    </section>
+
+    <section id="seguridad" class="section">
+      <article class="card">
+        <h2>11. Seguridad</h2>
+        <div class="grid grid-2">
+          <ul>
+            <li>Autenticación robusta y hashing de contraseñas (Argon2/Bcrypt).</li>
+            <li>Autorización por roles y permisos por tenant.</li>
+            <li>Cifrado TLS en tránsito y cifrado selectivo en reposo.</li>
+            <li>Rate limiting y protección contra abuso de APIs.</li>
+          </ul>
+          <ul>
+            <li>Registro de auditoría para acciones críticas.</li>
+            <li>Políticas de sesión segura y revocación de tokens.</li>
+            <li>Validación estricta de entradas y hardening del backend.</li>
+            <li>Backups automáticos y estrategia de recuperación.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section id="futuro" class="section">
+      <article class="card">
+        <h2>12. Mejoras futuras</h2>
+        <div class="grid grid-3">
+          <div>
+            <h3>Pagos en línea</h3>
+            <p>Integración con pasarelas de pago y conciliación automática.</p>
+          </div>
+          <div>
+            <h3>App móvil</h3>
+            <p>Aplicación para residentes y administradores con notificaciones push.</p>
+          </div>
+          <div>
+            <h3>Analítica avanzada</h3>
+            <p>Predicción de mora, alertas inteligentes y métricas de comportamiento.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    Plataforma conceptual para control de alícuotas y accesos en conjuntos habitacionales · <span id="year"></span>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const navSelect = document.getElementById("menu-opciones");
+    if (navSelect) {
+      navSelect.addEventListener("change", function () {
+        if (this.value) {
+          window.location.hash = this.value;
+        }
+      });
+    }
+  </script>
+</body>
 </html>
