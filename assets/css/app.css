@@ -234,6 +234,38 @@ code {
   gap: 8px;
 }
 
+.nav-dropdown {
+  border: 1px solid #2f406f;
+  background: #101b39;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.nav-dropdown-toggle {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  color: #d5e2ff;
+  font-weight: 600;
+  user-select: none;
+}
+
+.nav-dropdown-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.nav-dropdown[open] .nav-dropdown-toggle {
+  border-bottom: 1px solid #2f406f;
+  background: #12254f;
+  color: #9de7ff;
+}
+
+.nav-dropdown-menu {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
 .nav-btn {
   border: 1px solid #2f406f;
   background: #101b39;
@@ -242,6 +274,7 @@ code {
   text-align: left;
   padding: 10px 12px;
   cursor: pointer;
+  width: 100%;
 }
 
 .nav-btn.active {

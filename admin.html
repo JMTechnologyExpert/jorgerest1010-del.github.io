@@ -43,14 +43,19 @@
         <h2 id="sidebarCommunityName">Sistema de Alícuotas</h2>
       </div>
       <nav class="sidebar-nav">
-        <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
-        <button class="nav-btn" data-section="clients">👥 Clientes</button>
-        <button class="nav-btn" data-section="payments">💳 Pagos</button>
-        <button class="nav-btn" data-section="expenses">💸 Gastos</button>
-        <button class="nav-btn" data-section="calendar">📅 Calendario</button>
-        <button class="nav-btn" data-section="reports">📄 Reportes</button>
-        <button class="nav-btn" data-section="settings">⚙️ Configuración</button>
-        <button id="navUsersBtn" class="nav-btn" data-section="users">🔐 Usuarios</button>
+        <details class="nav-dropdown">
+          <summary class="nav-dropdown-toggle">☰ Opciones de acceso</summary>
+          <div class="nav-dropdown-menu">
+            <button class="nav-btn active" data-section="dashboard">🏠 Inicio</button>
+            <button class="nav-btn" data-section="clients">👥 Clientes</button>
+            <button class="nav-btn" data-section="payments">💳 Pagos</button>
+            <button class="nav-btn" data-section="expenses">💸 Gastos</button>
+            <button class="nav-btn" data-section="calendar">📅 Calendario</button>
+            <button class="nav-btn" data-section="reports">📄 Reportes</button>
+            <button class="nav-btn" data-section="settings">⚙️ Configuración</button>
+            <button id="navUsersBtn" class="nav-btn" data-section="users">🔐 Usuarios</button>
+          </div>
+        </details>
       </nav>
       <div class="sidebar-footer">
         <span id="modeBadge" class="mode-badge"></span>
